@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading;//чисто для задержки потоков, т.е. для симуляции долгоиграющего процесса
+using System.Threading;//we need this just to simulate a long-running process
 
 namespace LongRunningTask
 {
     public class LongRunningTaskPerformer
     {
-        //Интерфейс оповещения, реализуемый клиентом, которому интересно состояние долгоиграющего процесса.
-        //В нашем случае это форма запуска.
+        //Notification interface which is implemented by client interested in the long-running process state.
+        //In our case, the launch form is such a client.
         private readonly INotifyProgress _notifier;
 
         public LongRunningTaskPerformer(INotifyProgress notifier)
@@ -23,7 +23,8 @@ namespace LongRunningTask
 
         public void Run()
         {
-            //После каждого шага вызываем метод-оповещатель Notify. В случае с формой в реализации этого метода будет обновление прогресс-бара.
+            //After each step, call the Notify method. 
+            //As the Notify method is called, the progress bar on the form is updated.
             DoStep1();
             _notifier.Notify(33);
             DoStep2();
