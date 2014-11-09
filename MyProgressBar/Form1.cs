@@ -11,15 +11,15 @@ using LongRunningTask;
 
 namespace MyProgressBar
 {
-    //Наша форма запуска реализует интерфейс оповещения INotifyProgress. Это надо, чтобы форма смогла получать данные о состоянии долгоиграющего процесса
-    //ПО МЕРЕ его выполнения. Без реализации интерфейса ничего работать не будет!
+    //Our launch form is implementing the INotifyProgress notification interface. This is necessary for form to get the status of a long-running task 
+    //WHILE IT IS BEING PERFORMED. Nothing will work without the interface implementation!
     public partial class frmProgressBar : Form, INotifyProgress
     {
-        //Класс, выполняющий наш долгоиграющий процесс
+        //Class that launches our long-running process
         LongRunningTaskPerformer _ltp;
-        //Делегат, воспроизводящий внешний вид метода-оповещателя из интерфейса INotifyProgress.
-        //Он нужен для обеспечения потокобезопасной передачи данных в форму. Если его не будет, программа вылетит
-        //с исключением типа "обращение к progressBar не из его потока" (или что-то подобное).
+        //A delegate which is similar to notification method declared to INotifyProgress.
+        //It is needed to provide thread-safe data transfer to the form. Without it, the program will give 
+        //an exception looking like "calling progressBar from another thread" (something like that).
         delegate void NotifyCallback(int value);
 
         public frmProgressBar()
@@ -27,7 +27,7 @@ namespace MyProgressBar
             InitializeComponent();
         }
 
-        //Сам процесс запускается с помощью backgroundWorker-а. Кнопка Run только запускает этот backgroundWorker.
+        //The process itself is running using a BackgroundWorker. The Run button only launches this BackgroundWorker.
         private void btnRun_Click(object sender, EventArgs e)
         {
             backgroundWorker1.RunWorkerAsync();
@@ -35,7 +35,7 @@ namespace MyProgressBar
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            //Выполнение долгоиграющего процесса. 
+            //Performing our long-running task. 
             _ltp = new LongRunningTaskPerformer(this);
             _ltp.Run();
         }
@@ -47,16 +47,16 @@ namespace MyProgressBar
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            //Как-то показываем, что у нас завершился наш долгоиграющий процесс и возвращаем прогресс-бар в исходное состояние.
+            //Indicating our long-running process completion and bringing the progress bar into the initial state.
             MessageBox.Show("Process completed!");
             progressBar1.Value = 0;
         }
 
-        //Реализация процедуры оповещения о состоянии долгоиграющего процесса.
+        //The most important part here - implementation of the notification procedure.
         public void Notify(int percent)
         {
-            //Чтобы передача состояния процесса сработала корректно и программа не вылетела, 
-            //надо делать в точности как здесь (за подробностями - MSDN: 
+            //The implementation must be done exactly as follows so that the program works correctly,
+            //without any threading exceptions (read more in MSDN: 
             //http://msdn.microsoft.com/query/dev11.query?appId=Dev11IDEF1&l=EN-US&k=k%28EHInvalidOperation.WinForms.IllegalCrossThreadCall%29;k%28TargetFrameworkMoniker-.NETFramework,Version%3Dv4.5%29;k%28DevLang-csharp%29&rd=true)
 
             if (progressBar1.InvokeRequired)
